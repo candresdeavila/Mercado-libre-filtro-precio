@@ -578,39 +578,105 @@ const items = [
     },
   ];
   
+  function getTags(tags) {
+    let tagList = [];
+    for (let j = 0; j < tags.length; j++) {
+      const tagContent = tags[j];
+  
+      //html Template
+      const tag = ` <button class="btn btn-outline-info" id="tags">
+                        ${tagContent}
+                    </button>`;
+  
+      // Anadir el tag a la lista de tags
+      tagList.push(tag);
+    }
+    return tagList.join('');
+  }
+
+ function getProductList(products, filters){
+
   const listItems = [];
-
-  for (let i = 0; i < items.length; i++) {
-    const listmel = items[i];
-
-    const formatPrice = listmel.price.toLocaleString();
-
-    const list =
+  for (let i = 0; i < products.length; i++) {
+    const item = products[i];
+    let tagList = '';
+    const formatPrice = item.price.toLocaleString();
+    const itemHTML =
    `<div class="container">
       <div class="col d-flex flex-row align-items-center">
-        <div class="col-1"><img src="${listmel.thumbnail}" id=image></div>
+        <div class="col-1"><img src="${item.thumbnail}" id=image></div>
        
           <div class="col">
              <h3 class="price">$ ${formatPrice}<h3/>
-             <p class="title">${listmel.title}<p/>
+             <p class="title">${item.title}<p/>
           </div>  
 
           <div class="col d-flex justify-content-end">
-             <p class="address">${listmel.address.state_name}</p>
+             <p class="address">${item.address.state_name}</p> 
           </div>
       </div>
     </div>`;
 
-    listItems.push(list);
+    if(filters){
+      const itemPrice = item.price;
+      const maxPrice = filters.price.max;
+      const minPrice = filters.price.min;
+      if(itemPrice >= minPrice && itemPrice <= maxPrice){
+        listItems.push(itemHTML);
+      }
+    }else{
+      listItems.push(itemHTML);
+    }
+   
   }
-  
-  //document.querySelector('#app').innerHTML = `<ul>${listItems.join('')} </ul>`;
+ return `<ul>${listItems.join('')} </ul>`
+}
+
+var miDiv = document.getElementById("item-list");
   window.onload = function() {
-    var miDiv = document.getElementById("item-list");
-    miDiv.innerHTML = `<ul>${listItems.join('')} </ul>`;
+    miDiv.innerHTML = getProductList(items);
   };
+
+// 1- add a event listener to the filter btn action click
+const filterBtn = document.getElementById("filter-button");
+const maxPriceInput = document.getElementById("max-price");
+const minPriceInput = document.getElementById("min-price");
+
+filterBtn.addEventListener("click", getFilteredList)
+// 2- Attach to the event a filter logic
+function getFilteredList(){
+  const minPrice = minPriceInput.value
+  const maxPrice = maxPriceInput.value
+
+  const filters = {
+    price: {
+      min: minPrice, 
+      max: maxPrice
+    }
+  }
+// 2.1- Update the getProductList function to be aware of filter values
+// 2.2- Refresh the DOM with the filtered list
+  miDiv.innerHTML = getProductList(items, filters);
+// creating HTML element button clear  
+  const filterSideBar = document.getElementsByClassName("filter-container")[0];
+  const clearFilter = document.createElement("button")
+  clearFilter.innerText= "clear"
+  clearFilter.setAttribute("id", "clear-btn")
+  filterSideBar.append(clearFilter)
+
+  const clearBtn = document.getElementById("clear-btn")
+  clearBtn.addEventListener("click", function reRender(){
+    miDiv.innerHTML = getProductList(items)
+  })
+}
+
+
+
+
+
+
   
-  document.addEventListener("DOMContentLoaded", function () {
+/*   document.addEventListener("DOMContentLoaded", function () {
   const filterButton = document.getElementById("filter-button");
   const minPriceInput = document.getElementById("min-price");
   const maxPriceInput = document.getElementById("max-price");
@@ -632,6 +698,6 @@ const items = [
       }
     });
   });
-});
+}); */
 
   
